@@ -46,13 +46,21 @@ GPIO.add_event_detect(4, GPIO.FALLING, callback = Shutdown, bouncetime = 2000)
 # n = exit
 
 print 'press 1 + 2 on the Wii remote.....\n'
-time.sleep(1)
 
-try:
-    wii = cwiid.Wiimote()
-except RuntimeError:
-    print 'Error connecting to Wii remote.'
-    quit()
+wii = None
+i = 2
+
+while not wii:
+    try:
+        wii = cwiid.Wiimote()
+    except RuntimeError:
+        if (i>10):
+            quit()
+            break
+
+        print 'Error connecting to Wii remote. trying again...'
+        i = i +1
+
 
 print 'Wii remote connected !\n'
 
