@@ -1,5 +1,3 @@
-
-
 import RPi.GPIO as GPIO
 import sys
 import time
@@ -11,6 +9,17 @@ GPIO.setmode(GPIO.BCM)
 
 # shutdown button
 GPIO.setup(4, GPIO.IN, pull_up_down = GPIO.PUD_UP)  
+
+# LEDs to show status of wimote.
+#  GPIO 5 - green LED means SUCCESS pairing
+#  GPIO 6 - red LED means FAILURE pairing
+
+GPIO.setup(5, GPIO.OUT)
+GPIO.setup(6, GPIO.OUT)
+
+GPIO.output(5, False)
+GPIO.output(6, False)
+
 
 # right gearbox
 GPIO.setup(23, GPIO.OUT)
@@ -30,20 +39,28 @@ GPIO.setup(21, GPIO.OUT)
 
 
 def Shutdown(channel):
+
+    GPIO.output(5, True)
+    GPIO.output(6, True)
+    time.sleep(2)
+    GPIO.output(5, False)
+    GPIO.output(6, False)
+    GPIO.cleanup()
     os.system("sudo shutdown -h now")
 	
 
 GPIO.add_event_detect(4, GPIO.FALLING, callback = Shutdown, bouncetime = 2000)   
 
+#blink green LED as signal to pair wiimote.
 
+GPIO.output(5, True)
+time.sleep(0.5)
+GPIO.output(5, False)
+time.sleep(0.5)
+GPIO.output(5, True)
+time.sleep(0.5)
+GPIO.output(5, False)
 
-
-# a = stop
-# q = forward
-# p = reverse
-# w = right
-# o = left
-# n = exit
 
 print 'press 1 + 2 on the Wii remote.....\n'
 
@@ -55,6 +72,12 @@ while not wii:
         wii = cwiid.Wiimote()
     except RuntimeError:
         if (i>10):
+
+            GPIO.output(6, True) # turn on RED LED.  wiimote failed.
+            time.sleep(2)
+            GPIO.output(6, False)
+            GPIO.cleanup()
+
             quit()
             break
 
@@ -62,7 +85,11 @@ while not wii:
         i = i +1
 
 
+GPIO.output(5, True)  #wiimote pairing SUCCESS.  light green LED for 2 seconds.
 print 'Wii remote connected !\n'
+time.sleep(2)
+GPIO.output(5, False)
+
 
 wii.rpt_mode = cwiid.RPT_BTN
 
@@ -78,10 +105,14 @@ while True:
         wii.rumble = 1
         time.sleep(0.5)
         wii.rumble = 0
+        GPIO.output(5, True)
+        GPIO.output(6, True)
         GPIO.cleanup()
         exit(wii)
 
     elif (buttons & cwiid.BTN_UP):  # go forward
+        
+        print 'forward'
         
         GPIO.output(23, True)
         GPIO.output(24, False)
@@ -90,6 +121,8 @@ while True:
         GPIO.output(21, False)
         
     elif (buttons & cwiid.BTN_DOWN):  # go backward
+
+        print 'back'
 
         GPIO.output(23, False)
         GPIO.output(24, True)
@@ -100,6 +133,8 @@ while True:
 
     elif (buttons & cwiid.BTN_LEFT):    # turn left
         
+        print 'left'
+
         GPIO.output(23, True)
         GPIO.output(24, False)
 
@@ -107,6 +142,9 @@ while True:
         GPIO.output(21, True)
 
     elif (buttons & cwiid.BTN_RIGHT):    # turn right
+
+        print 'right'
+
         GPIO.output(23, False)
         GPIO.output(24, True)
 
@@ -122,6 +160,12 @@ while True:
 
 
 print 'done'
+GPIO.output(5, True)
+GPIO.output(6, True)
+time.sleep(2)
+GPIO.output(5, False)
+GPIO.output(6, False)
+
 
 GPIO.cleanup()
 
