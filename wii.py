@@ -38,6 +38,7 @@ GPIO.setup(21, GPIO.OUT)
 #GPIO.PWM(20, PWM_FREQ)
 #GPIO.PWM(21, PWM_FREQ)
 
+button_delay = 0.1
 
 
 def Shutdown(channel):
@@ -121,6 +122,8 @@ while True:
         
         GPIO.output(20, True)
         GPIO.output(21, False)
+
+        time.sleep(button_delay)
         
     elif (buttons & cwiid.BTN_DOWN):  # go backward
 
@@ -131,6 +134,8 @@ while True:
 
         GPIO.output(20, False)
         GPIO.output(21, True)
+
+        time.sleep(button_delay)
 
 
     elif (buttons & cwiid.BTN_LEFT):    # turn left
@@ -143,6 +148,9 @@ while True:
         GPIO.output(20, False)
         GPIO.output(21, True)
 
+        time.sleep(button_delay)
+
+
     elif (buttons & cwiid.BTN_RIGHT):    # turn right
 
         print 'right'
@@ -152,6 +160,8 @@ while True:
 
         GPIO.output(20, True)
         GPIO.output(21, False)
+
+        time.sleep(button_delay)
         
     else:
         GPIO.output(23, False)
@@ -159,6 +169,8 @@ while True:
 
         GPIO.output(20, False)
         GPIO.output(21, False)
+
+        time.sleep(button_delay)
 
 
 print 'done'
